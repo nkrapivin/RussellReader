@@ -71,7 +71,7 @@ namespace gmpspread
                             Output.Print("Sprites dumped! Press any key to quit...");
                             Output.ReadKey();
                         }
-                        else if (args[2] == "-dumpsounds")
+                        else if (args[1] == "-dumpsounds")
                         {
                             Output.Print("Dumping .wav sounds to 'Sounds' directory...");
                             try
@@ -604,56 +604,59 @@ namespace gmpspread
                 {
                     var eee = oo.Events[ee];
                     if (eee.Count == 0) continue; // the event doesn't exist (it's empty)
-                    string ee_n = GetFriendlyEventName(ee, eee[0], w, oo);
-                    var actx = new XElement("actions");
-                    for (int ae = 0; ae < eee[0].Count; ae++)
+                    for (int _e = 0; _e < eee.Count; _e++)
                     {
-                        var acto = eee[0].Actions[ae];
-
-                        string whos;
-                        if (acto.Who == -1) whos = ".self";
-                        else if (acto.Who == -2) whos = ".other";
-                        else whos = w.Objects.Items[acto.Who].Name.Content;
-
-                        XElement actargs = new XElement("arguments");
-                        for (int ar = 0; ar < acto.ArgumentCount; ar++)
+                        string ee_n = GetFriendlyEventName(ee, eee[_e], w, oo);
+                        var actx = new XElement("actions");
+                        for (int ae = 0; ae < eee[_e].Count; ae++)
                         {
-                            var arg_list = acto.ArgTypesList;
-                            var arg_l2 = acto.Arguments;
-                            actargs.Add(
-                                    new XElement("argument",
-                                        new XAttribute("kind", arg_list[ar].ToString()),
-                                        GetActionArgumentValue(arg_list[ar], arg_l2[ar], w)
+                            var acto = eee[_e].Actions[ae];
+
+                            string whos;
+                            if (acto.Who == -1) whos = ".self";
+                            else if (acto.Who == -2) whos = ".other";
+                            else whos = w.Objects.Items[acto.Who].Name.Content;
+
+                            XElement actargs = new XElement("arguments");
+                            for (int ar = 0; ar < acto.ArgumentCount; ar++)
+                            {
+                                var arg_list = acto.ArgTypesList;
+                                var arg_l2 = acto.Arguments;
+                                actargs.Add(
+                                        new XElement("argument",
+                                            new XAttribute("kind", arg_list[ar].ToString()),
+                                            GetActionArgumentValue(arg_list[ar], arg_l2[ar], w)
+                                        )
+                                    );
+                            }
+
+                            actx.Add(
+                                new XElement("action",
+                                    new XAttribute("id", acto.ID),
+                                    new XAttribute("library", acto.LibID),
+                                    new XComment("action name: " + acto.Name.Content),
+                                    new XElement("kind", acto.Kind.ToString()),
+                                    new XElement("allowRelative", acto.UseRelative),
+                                    new XElement("question", acto.IsQuestion),
+                                    new XElement("canApplyTo", acto.UseApplyTo),
+                                    new XElement("actionType", acto.ExeType.ToString()),
+                                    new XElement("functionName", ""), // TODO
+                                    new XElement("relative", acto.Relative),
+                                    new XElement("not", acto.IsNot),
+                                    new XElement("appliesTo", whos),
+                                    actargs
                                     )
                                 );
                         }
-
-                        actx.Add(
-                            new XElement("action",
-                                new XAttribute("id", acto.ID),
-                                new XAttribute("library", acto.LibID),
-                                new XComment("action name: " + acto.Name.Content),
-                                new XElement("kind", acto.Kind.ToString()),
-                                new XElement("allowRelative", acto.UseRelative),
-                                new XElement("question", acto.IsQuestion),
-                                new XElement("canApplyTo", acto.UseApplyTo),
-                                new XElement("actionType", acto.ExeType.ToString()),
-                                new XElement("functionName", ""), // TODO
-                                new XElement("relative", acto.Relative),
-                                new XElement("not", acto.IsNot),
-                                new XElement("appliesTo", whos),
-                                actargs
-                                )
+                        var eex = new XElement("event",
+                                new XAttribute("category", ((EventName)ee).ToString().Replace("EV_", string.Empty)),
+                                (ee != 4) ? new XAttribute("id", eee[_e].Key) : new XAttribute("with", w.Objects.Items[eee[_e].Key].Name.Content),
+                                actx
                             );
+                        var eedoc = new XDocument(eex);
+                        eedoc.Declaration = new XDeclaration("1.0", "UTF-8", "no");
+                        eedoc.Save(p + name + ".events" + Path.DirectorySeparatorChar + ee_n + ".xml");
                     }
-                    var eex = new XElement("event",
-                            new XAttribute("category", ((EventName)ee).ToString().Replace("EV_", string.Empty)),
-                            (ee != 4) ? new XAttribute("id", eee[0].Key) : new XAttribute("with", w.Objects.Items[eee[0].Key].Name.Content),
-                            actx
-                        );
-                    var eedoc = new XDocument(eex);
-                    eedoc.Declaration = new XDeclaration("1.0", "UTF-8", "no");
-                    eedoc.Save(p + name + ".events" + Path.DirectorySeparatorChar + ee_n + ".xml");
                 }
             }
 

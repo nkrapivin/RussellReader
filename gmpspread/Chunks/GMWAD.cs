@@ -48,6 +48,10 @@ namespace gmpspread
 
             Output.Print("Reading chunk GEN8...");
             Header = new GMGeneral(mainWAD);
+            if ((Header.ID != 136686) && (Header.ID != 419701))
+            {
+                Output.Print("RussellReader doesn't know this game. Proceed at your own risk!");
+            }
             Output.Print("Reading chunk OPTN...");
             Options = new GMOptions(mainWAD);
             Output.Print("Reading chunk HELP...");
