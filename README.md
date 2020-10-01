@@ -18,7 +18,7 @@ Credits:
 
 - Medo42 - making GMKSplitter
 
-- Russell Kay - banning my YoYo account, and being a nice person in general.
+- Russell Kay - ~~banning my YoYo account~~, and being a nice person in general.
 
 
 (yes, the banner was made in Paint)
